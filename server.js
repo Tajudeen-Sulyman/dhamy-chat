@@ -6,7 +6,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static frontend from public/
 app.use(express.static("public"));
 app.use(express.json());
 
@@ -22,7 +21,7 @@ app.post("/chat", async (req, res) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-3.5-turbo",   // safer default
         messages: [{ role: "user", content: message }]
       })
     });
@@ -30,12 +29,14 @@ app.post("/chat", async (req, res) => {
     const data = await response.json();
 
     if (data.error) {
+      console.error("❌ OpenAI API Error:", data.error);
       return res.status(500).json({ error: data.error.message });
     }
 
     res.json({ reply: data.choices[0].message.content });
 
   } catch (error) {
+    console.error("❌ Server Error:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
